@@ -1,6 +1,6 @@
 package com.ecommerce.product_service.service;
 
-import com.ecommerce.product_service.exception.ResourceNotFound;
+import com.ecommerce.product_service.exception.ResourceNotFoundException;
 import com.ecommerce.product_service.model.dto.ProductRequestDto;
 import com.ecommerce.product_service.model.dto.ProductResponseDto;
 import com.ecommerce.product_service.model.mapper.ProductMapper;
@@ -34,7 +34,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDto getProductById(String productId) {
         var product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFound("Product", "id", productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
         return productMapper.toResponse(product);
     }
 
@@ -48,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDto updateProduct(String productId, ProductRequestDto productRequestDto) {
         var product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFound("Product", "id", productId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
         productMapper.updateEntityFromDto(productRequestDto, product);
         return productMapper.toResponse(productRepository.save(product));
     }
@@ -56,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProductById(String productId) {
         if (!productRepository.existsById(productId)) {
-            throw new ResourceNotFound("Product", "id", productId);
+            throw new ResourceNotFoundException("Product", "id", productId);
         }
         productRepository.deleteById(productId);
     }
