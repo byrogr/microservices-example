@@ -5,6 +5,7 @@ import com.ecommerce.inventory_service.model.dto.InventoryResponseDto;
 import com.ecommerce.inventory_service.model.entity.Inventory;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface InventoryMapper {
@@ -15,4 +16,7 @@ public interface InventoryMapper {
     @Mapping(target = "inventoryId", source = "id")
     @Mapping(target = "inStock", expression = "java(inventory.getQuantity() > 0)")
     InventoryResponseDto toResponse(Inventory inventory);
+
+    @Mapping(target = "id", ignore = true)
+    void updateEntityFromDto(InventoryRequestDto inventoryRequestDto, @MappingTarget Inventory inventory);
 }
