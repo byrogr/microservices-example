@@ -1,0 +1,54 @@
+services:
+  # Database services
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    volumes:
+      - mongo-data:/data/db
+
+  mysqldb:
+    image: mysql:8
+    container_name: inventorydb
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: inventory_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  postgresdb:
+    image: postgres:16-alpine
+    container_name: orderdb
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # --
+  # Microservices
+  product-ms:
+    build:
+      context: product-service
+      dockerfile: product-service/Dockerfile
+    container_name: ms-product
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://root:secret@mongodb:27017/product_db?authSource=admin
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo-data:
+  mysql-data:
+  postgres_data:
