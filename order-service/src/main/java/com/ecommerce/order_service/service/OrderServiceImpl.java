@@ -5,6 +5,7 @@ import com.ecommerce.order_service.model.dto.OrderRequestDto;
 import com.ecommerce.order_service.model.dto.OrderResponseDto;
 import com.ecommerce.order_service.model.mapper.OrderMapper;
 import com.ecommerce.order_service.repository.OrderRepository;
+import com.ecommerce.order_service.service.external.InventoryServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final InventoryServiceClient inventoryServiceClient;
 
     @Override
     @Transactional
@@ -27,6 +29,20 @@ public class OrderServiceImpl implements OrderService {
         log.info("** Creating new order **");
 
         var order = orderMapper.toOrderEntity(orderRequestDto);
+
+        for (var item : order.getOrderItems()) {
+            var sku = item.getSku();
+            var qty = item.getQuantity();
+
+            try {
+                inventoryServiceClient.reduceStock(sku, qty);
+            } catch (Exception ex) {
+                log.error("** Error to reduce stock for product with SKU: {} -> {} **", sku, ex.getMessage());
+                throw new IllegalArgumentException("** Error to place new order **");
+            }
+        }
+
+
         order.setOrderNumber(UUID.randomUUID().toString());
         var savedOrder = orderRepository.save(order);
 
