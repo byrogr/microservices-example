@@ -81,4 +81,20 @@ public class InventoryServiceImpl implements InventoryService {
                 .map(inventory -> inventory.getQuantity() >= quantity)
                 .orElse(false);
     }
+
+    @Override
+    @Transactional
+    public void reduceStock(String sku, Integer quantity) {
+        log.info("** Reducing stock to product with sku: {}  **", sku);
+        var inventory = inventoryRepository.findBySku(sku)
+                .orElseThrow(() -> new ResourceNotFoundException("Inventory", "sku", sku));
+
+        if (inventory.getQuantity() < quantity) {
+            throw new RuntimeException("** Insufficient Stock **");
+        }
+
+        inventory.setQuantity(inventory.getQuantity() - quantity);
+        inventoryRepository.save(inventory);
+        log.info("** Reducing stock to product with sku: {} successfully **", sku);
+    }
 }

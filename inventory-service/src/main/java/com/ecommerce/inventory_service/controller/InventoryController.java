@@ -18,7 +18,7 @@ import java.util.List;
 public class InventoryController {
     private final InventoryService inventoryService;
 
-    @GetMapping("/{sku}")
+    @GetMapping("/stock/{sku}/exists")
     @ResponseStatus(HttpStatus.OK)
     public boolean isInStock(@PathVariable String sku, @RequestParam("qty") Integer quantity) {
         log.info("** Init Checking inventory for SKU: {} **", sku);
@@ -51,5 +51,12 @@ public class InventoryController {
     public void deleteInventory(@PathVariable Long id) {
         log.info("** Init Deleting inventory with ID: {} **", id);
         inventoryService.deleteInventory(id);
+    }
+
+    @PutMapping("/stock/{sku}/reduce")
+    @ResponseStatus(HttpStatus.OK)
+    public void reduceStock(@PathVariable String sku, @RequestParam Integer qty) {
+        log.info("** Init reducing stock to product with SKU: {} **", sku);
+        inventoryService.reduceStock(sku, qty);
     }
 }
