@@ -13,7 +13,7 @@ public interface InventoryMapper {
     @Mapping(target = "id", ignore = true)
     Inventory toEntity(InventoryRequestDto inventoryRequestDto);
 
-    @Mapping(target = "inventoryId", source = "id")
+    @Mapping(target = "inventoryId", expression = "java(inventory.getId().toString())")
     @Mapping(target = "inStock", expression = "java(inventory.getQuantity() > 0)")
     InventoryResponseDto toResponse(Inventory inventory);
 
