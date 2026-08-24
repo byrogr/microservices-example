@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +26,9 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto placeOrder(OrderRequestDto orderRequestDto) {
         log.info("** Creating new order **");
 
-        var savedOrder = orderRepository.save(orderMapper.toOrderEntity(orderRequestDto));
+        var order = orderMapper.toOrderEntity(orderRequestDto);
+        order.setOrderNumber(UUID.randomUUID().toString());
+        var savedOrder = orderRepository.save(order);
 
         log.info("** Create new order with number: {} successfully **", savedOrder.getOrderNumber());
         return orderMapper.toOrderResponse(savedOrder);

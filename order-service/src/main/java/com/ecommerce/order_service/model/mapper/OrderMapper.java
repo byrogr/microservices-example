@@ -13,7 +13,6 @@ import org.mapstruct.Mapping;
 public interface OrderMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "orderNumber", expression = "java(UUID.randomUUID().toString())")
     Order toOrderEntity(OrderRequestDto orderRequestDto);
 
     @Mapping(target = "id", ignore = true)
