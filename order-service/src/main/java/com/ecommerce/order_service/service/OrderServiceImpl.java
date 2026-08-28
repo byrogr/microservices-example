@@ -8,6 +8,8 @@ import com.ecommerce.order_service.repository.OrderRepository;
 import com.ecommerce.order_service.service.external.InventoryServiceClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,15 +19,25 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@RefreshScope
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final InventoryServiceClient inventoryServiceClient;
 
+    @Value("${app.order.enabled: true}")
+    private boolean ordersEnabled;
+
     @Override
     @Transactional
     public OrderResponseDto placeOrder(OrderRequestDto orderRequestDto) {
+
+        if (!ordersEnabled) {
+            log.warn("** Order rejected **");
+            throw new RuntimeException("** Order Service On Maintenance. Try to later **");
+        }
+
         log.info("** Creating new order **");
 
         var order = orderMapper.toOrderEntity(orderRequestDto);
